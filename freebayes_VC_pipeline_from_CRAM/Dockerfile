@@ -9,15 +9,15 @@ RUN conda install -c bioconda -c conda-forge -y \
     bcftools=1.15 \
     samtools=1.14
 
-RUN mkdir /data
-WORKDIR /data
+RUN mkdir /internal_data
 
-# copy refgenome header for dummy VCF
-COPY MTB-h37rv_asm19595v2-eg18.fa ./refgenome.fa
-COPY vcf_header.txt .
+# copy the refgenome and the header for the dummy VCF
+COPY data_files/MTB-h37rv_asm19595v2-eg18.fa /internal_data/refgenome.fa
+RUN samtools faidx /internal_data/refgenome.fa
+COPY data_files/vcf_header.txt /internal_data
 
-# copy entrypoint script and the python helper script
-COPY get_genotypes.sh .
-COPY process_variants.py .
+# copy the entrypoint script and the python helper script
+COPY scripts/entrypoint.py /
+COPY scripts/get_genotypes.sh /
 
-ENTRYPOINT [ "/bin/bash", "/data/get_genotypes.sh" ]
+ENTRYPOINT ["python", "/entrypoint.py"]
