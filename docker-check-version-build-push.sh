@@ -1,20 +1,20 @@
 #!/bin/bash
 
-get-tags-from-docker-hub() {
+get_tags_from_docker_hub() {
     wget -q "https://registry.hub.docker.com/v1/repositories/$1/tags" -O -  |
         sed -e 's/[][]//g' -e 's/"//g' -e 's/ //g' | 
         tr '}' '\n'  | 
         awk -F: '{print $3}'
 }
 
-get-version-from-dockerfile() {
+get_version_from_dockerfile() {
     grep "^LABEL" "$1" |
         grep "software.version=" |
         grep -oP '\"([0-9\.]+)\"$' |
         tr -d '"'
 }
 
-get-img-name-from-dockerfile() {
+get_img_name_from_dockerfile() {
     grep "^LABEL" "$1" |
         grep "image.name=" |
         grep -oP '=\".+\"$' |
@@ -22,12 +22,12 @@ get-img-name-from-dockerfile() {
 
 }
 
-push-docker-if-new-version() {
+push_docker_if_new_version() {
     echo "$1"
-    new_tag="v$(get-version-from-dockerfile "$1")"
+    new_tag="v$(get_version_from_dockerfile "$1")"
     echo "$new_tag"
-    name="$(get-img-name-from-dockerfile  "$1")"
-    old_tags="$(get-tags-from-docker-hub "$name")"
+    name="$(get_img_name_from_dockerfile  "$1")"
+    old_tags="$(get_tags_from_docker_hub "$name")"
     img_tag="$name:$new_tag"
     echo "Checking if version changed for $img_tag:"
     # exit if the version tag from the Dockerfile is already on Docker Hub
@@ -42,9 +42,9 @@ push-docker-if-new-version() {
     fi
 }
 
-export -f get-tags-from-docker-hub
-export -f get-version-from-dockerfile
-export -f get-img-name-from-dockerfile
-export -f push-docker-if-new-version
+export -f get_tags_from_docker_hub
+export -f get_version_from_dockerfile
+export -f get_img_name_from_dockerfile
+export -f push_docker_if_new_version
 # get version
-find . -name Dockerfile -exec bash -c 'push-docker-if-new-version $1' shell {} \;
+find . -name Dockerfile -exec bash -c 'push_docker_if_new_version $1' shell {} \;
