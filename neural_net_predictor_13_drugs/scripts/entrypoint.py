@@ -3,13 +3,14 @@ import pandas as pd
 import sys
 import argparse
 
-tf.get_logger().setLevel('ERROR')
+# ignore tf warnings
+tf.get_logger().setLevel("ERROR")
 
 parser = argparse.ArgumentParser(
     description="""
-        A Neural Network classifier to predict Mtb resistance to 13 drugs from sequence
-        data. Expects the name of a CSV file with the one hot-encoded sequence data
-        (with columns A, C, G, T) as single argument.
+        A Neural Network classifier to predict Mtb resistance against 13 drugs from
+        sequence data. Expects the name of a CSV file holding the one hot-encoded
+        sequence data (with columns A, C, G, T) as single argument.
         """
 )
 parser.add_argument(
@@ -37,13 +38,20 @@ drugs = [
     "STREPTOMYCIN",
 ]
 
+# load the model
 m = tf.keras.models.load_model("/model", compile=False)
 
+# read the input data
 input = pd.read_csv(args.file)
-assert list(input.columns) == list('ACGT'), "Input file must have columns A, C, G, T."
+if list(input.columns) != list("ACGT"):
+    raise ValueError(
+        f"Input file must have columns {list('ACGT')}, but has {list(input.columns)}"
+    )
 
+# predict
 res = pd.Series(
     tf.sigmoid(m.predict(tf.expand_dims(input, 0))).numpy().flatten(), index=drugs
 )
 
+# write the result
 res.to_csv(sys.stdout, index_label="drug", header=["probability"])
