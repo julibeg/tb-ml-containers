@@ -1,7 +1,7 @@
 FROM continuumio/miniconda3:latest
 
 LABEL software.version="0.1.0"
-LABEL image.name="jodyphelan/tb-ml-base-calls-from-cram"
+LABEL image.name="julibeg/tb-ml-base-calls-from-cram"
 
 RUN conda install -c bioconda -c conda-forge -y \
     sambamba \
