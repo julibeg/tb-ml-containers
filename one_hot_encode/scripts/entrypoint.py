@@ -7,20 +7,24 @@ import io
 ref_file = "/internal_data/refgenome.fa"
 
 parser = argparse.ArgumentParser(
-    description="TODO",
+    description="""Extract one-hot-encoded consensus sequences from aligned reads. Needs
+                a SAM/BAM/CRAM file and a BED file with the coordinates of the regions
+                to extract.""",
 )
 parser.add_argument(
     "-b",
     "--bam",
     type=str,
-    help="BAM file",
+    metavar="FILE",
+    help="alignment file (SAM/BAM/CRAM) [required]",
     required=True,
 )
 parser.add_argument(
     "-r",
     "--regions",
     type=str,
-    help="Regions bed file",
+    metavar="FILE",
+    help="regions BED file [required]",
     required=True,
 )
 args = parser.parse_args()
@@ -42,14 +46,7 @@ subprocess.run(["samtools", "index", "reads.sorted.bam"])
 sambamba_output = pd.read_csv(
     io.StringIO(
         subprocess.run(
-            [
-                "sambamba",
-                "depth",
-                "base",
-                "-L",
-                "/test/dev/H37RV_loci_coords_from_table_in_paper.bed",
-                "/test/dev/reads.sorted.bam",
-            ],
+            ["sambamba", "depth", "base", "-L", args.regions, "reads.sorted.bam"],
             capture_output=True,
             text=True,
         ).stdout
@@ -58,8 +55,7 @@ sambamba_output = pd.read_csv(
     usecols=["REF", "POS", "A", "C", "G", "T", "DEL"],
     index_col=[0, 1],
 )
-print(sambamba_output.head())
-# res = pd.get_dummies(sambamba_output.idxmax(axis=1)).query("DEL == 0")[
-#     ["A", "C", "G", "T"]
-# ]
-# print(res.head(20).to_csv(index_label=["CHR", "POS"]))
+res = pd.get_dummies(sambamba_output.idxmax(axis=1)).query("DEL == 0")[
+    ["A", "C", "G", "T"]
+]
+print(res.to_csv(index=False))
