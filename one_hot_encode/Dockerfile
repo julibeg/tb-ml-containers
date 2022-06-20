@@ -4,7 +4,7 @@ LABEL software.version="0.1.0"
 LABEL image.name="julibeg/tb-ml-one-hot-encoded-from-cram"
 
 RUN conda install -c bioconda -c conda-forge -y \
-    sambamba \
+    sambamba=0.6.8 \
     samtools=1.12 \
     pandas=1.4.2
 

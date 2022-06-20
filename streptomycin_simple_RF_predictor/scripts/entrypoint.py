@@ -23,25 +23,26 @@ parser = argparse.ArgumentParser(
         """
 )
 parser.add_argument(
-    "option",
-    choices=["get_target_vars", "predict"],
-    help=(
-        "Whether to print the target variants and allele frequencies or read "
-        "variants from a file and predict resistance status [required]"
-    ),
+    "--get-target-vars",
+    action="store_true",
+    dest="get_target_vars",
+    help=("Whether to print the target variants + allele frequencies and exit"),
 )
 parser.add_argument(
     "file",
     metavar="FILE",
     type=str,
     nargs="?",
-    help="Input file for prediction [required if 'predict']",
+    help=(
+        "CSV file with input data for prediction "
+        "(required if '--get-target-vars' was not passed)"
+    ),
 )
 args = parser.parse_args()
-if args.option == "predict" and args.file is None:
-    parser.error("'predict' needs to be followed by a filename.")
-if args.option == "get_target_vars" and args.file is not None:
-    parser.error("Don't provide another argument for 'get_target_vars'.")
+if not args.get_target_vars and args.file is None:
+    parser.error("Provide a filename or pass '--get-target-vars'.")
+if args.get_target_vars and args.file is not None:
+    parser.error("Don't provide another argument when passing '--get-target-vars'.")
 
 # get the variants the model has been fitted on
 target_vars = pd.read_csv(
@@ -49,12 +50,11 @@ target_vars = pd.read_csv(
 ).squeeze()
 
 # print target variants if requested
-if args.option == "get_target_vars":
+if args.get_target_vars:
     sys.stdout.write(target_vars.to_csv())
 else:
-    # `args.option` has to be 'predict' (argparse would have thrown an error otherwise)
-    # and we checked for the presence of an input file name above --> all looks good, we
-    # can load the model and predict
+    # "--get-target-vars" was not passed and we have an input file (as checked above)
+    # --> all looks good, we can load the model and predict
     m = joblib.load("/internal_data/model.pkl")
     # load the input variants
     X = pd.read_csv(args.file, index_col=["POS", "REF", "ALT"], comment="#")

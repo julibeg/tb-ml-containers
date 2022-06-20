@@ -17,7 +17,7 @@ parser.add_argument(
     "file",
     metavar="FILE",
     type=str,
-    nargs="?",
+    nargs=1,
     help="Input CSV file with one hot-encoded sequence data [required]",
 )
 args = parser.parse_args()

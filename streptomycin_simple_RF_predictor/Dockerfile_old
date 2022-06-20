@@ -1,6 +1,6 @@
 FROM continuumio/miniconda3:latest
 
-LABEL software.version="0.2.0"
+LABEL software.version="0.1.0"
 LABEL image.name="julibeg/tb-ml-simple-rf-predictor-streptomycin"
 
 RUN conda install -c conda-forge -y \
