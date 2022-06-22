@@ -6,10 +6,17 @@ import io
 
 ref_file = "/internal_data/refgenome.fa"
 
+"""
+Entrypoint for a Docker container which uses `sambamba` to generate one-hot encoded
+sequences from a BAM file. The start and end coordinates of the sequences are read from
+a BED file (which is required). The sequences are concatenated without any gaps.
+"""
+
 parser = argparse.ArgumentParser(
     description="""Extract one-hot-encoded consensus sequences from aligned reads. Needs
                 a SAM/BAM/CRAM file and a BED file with the coordinates of the regions
-                to extract.""",
+                to extract. Writes the output to a CSV file. Providing an output file is
+                required."""
 )
 parser.add_argument(
     "-b",
@@ -25,6 +32,14 @@ parser.add_argument(
     type=str,
     metavar="FILE",
     help="regions BED file [required]",
+    required=True,
+)
+parser.add_argument(
+    "-o",
+    "--output",
+    type=str,
+    metavar="FILE",
+    help="output file [required]",
     required=True,
 )
 args = parser.parse_args()
@@ -55,7 +70,8 @@ sambamba_output = pd.read_csv(
     usecols=["REF", "POS", "A", "C", "G", "T", "DEL"],
     index_col=[0, 1],
 )
-res = pd.get_dummies(sambamba_output.idxmax(axis=1)).query("DEL == 0")[
-    ["A", "C", "G", "T"]
-]
-print(res.to_csv(index=False))
+consensus_seq = sambamba_output.idxmax(axis=1)
+# drop deletions if there were any
+consensus_seq = consensus_seq[consensus_seq != "DEL"]
+res = pd.get_dummies(consensus_seq)[["A", "C", "G", "T"]]
+res.to_csv(args.output, index=False)

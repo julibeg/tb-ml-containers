@@ -1,25 +1,29 @@
 import pandas as pd
 import argparse
 import subprocess
+import sys
 import io
 
 """
-Parses arguments and then calls a Bash script containing a variant calling pipeline.
-Expects the name of a BAM file and a CSV file with target variants (i.e. variants for
-which we want genotypes) in the format `POS,REF,ALT,AF`. This CSV file also holds allele
-frequencies in the last column which are used to replace non-calls later.
-Prints the processed variants in the format `POS,REF,ALT,GT` alongside some simple stats
-(e.g. the number of missing variants, noncalls, etc.) to STDOUT. The stats are printed
-as comments (i.e. prepended by `#`) before printing the variants.
+Entrypoint for a Docker container holding a simple variant calling pipeline: Parses
+arguments and then calls a shell script containing the pipeline. Expects the name of a
+BAM file with M. tuberculosis reads aligned against the reference strain H37Rv
+(ASM19595v2) and a CSV file with target variants (i.e. variants for which we want
+genotypes) in the format `POS,REF,ALT,AF`. This CSV file should also hold allele
+frequencies in the last column which are used to replace missing genotypes / non-calls.
+The container writes the called variants in the format `POS,REF,ALT,GT` to the output
+file. It will also print some simple stats (e.g. the number of missing variants,
+noncalls, etc.) to STDOUT.
 """
 
 parser = argparse.ArgumentParser(
     description="""
-    Variant calling pipeline accepting a BAM file with reads aligned against a reference
-    and a CSV of target variants (and allele frequencies) in the format `POS,REF,ALT,AF`
-    as input. Calls the genotypes specified in the CSV and replaces missing variants /
-    noncalls with the corresponding allele frequencies. Prints some basic stats (as
-    header lines starting with `#`) and the variants as `POS,REF,ALT,GT` to STDOUT.
+    Variant calling pipeline accepting a BAM file with reads aligned against the M.
+    tyberculosis reference genome H37Rv (ASM19595v2) and a CSV of target variants (and
+    allele frequencies) in the format `POS,REF,ALT,AF` as input. Calls the genotypes
+    specified in the CSV and replaces missing genotypes / noncalls with the
+    corresponding allele frequencies. Writes some basic stats to STDOUT and the variants
+    as `POS,REF,ALT,GT` to the output file (specified by '-o').
     """,
 )
 parser.add_argument(
@@ -39,9 +43,16 @@ parser.add_argument(
     metavar="FILE",
 )
 parser.add_argument(
+    "-o",
+    "--output",
+    type=str,
+    required=True,
+    metavar="FILE",
+    help="File to write the called variants to [required]",
+)
+parser.add_argument(
     "--DP-threshold",
     type=int,
-    required=False,
     help=(
         "DP threshold (variant calls with lower DP value will be replaced by the "
         "correspoding allele frequency) [default: %(default)d]"
@@ -53,16 +64,21 @@ parser.add_argument(
 args = parser.parse_args()
 # read the data
 AFs = pd.read_csv(args.target_vars, index_col=["POS", "REF", "ALT"]).squeeze()
-variants = pd.read_csv(
-    io.StringIO(
-        subprocess.run(
-            ["/bin/bash", "/get_genotypes.sh", args.bam, args.target_vars],
-            capture_output=True,
-            text=True,
-        ).stdout
-    ),
-    index_col=["POS", "REF", "ALT"],
-)
+try:
+    variants = pd.read_csv(
+        io.StringIO(
+            (
+                p := subprocess.run(
+                    ["/bin/bash", "/get_genotypes.sh", args.bam, args.target_vars],
+                    capture_output=True,
+                    text=True,
+                )
+            ).stdout
+        ),
+        index_col=["POS", "REF", "ALT"],
+    )
+except pd.errors.EmptyDataError:
+    raise RuntimeError(f"No variants produced by pipeline. Error?\n{p.stderr}")
 # get the first char from the `x/x` genotype field and replace non-calls with NA
 variants["GT"] = variants["GT"].apply(lambda x: x[0]).replace(".", pd.NA)
 # declare variants with DP < threshold also as non-calls
@@ -82,9 +98,7 @@ variants = pd.concat((variants, AFs[AFs.index.difference(variants.index)]))
 # make sure the order is as expected by the model
 variants = variants[AFs.index]
 
-# write to STDOUT --> first the stats as comments and then the variants
-stats_str = stats.to_csv(header=["value"], index_label="parameter")
-for line in stats_str.strip().split("\n"):
-    print(f"#{line.strip()}")
+# write to the variants to the output file and the stats to STDOUT
 variants.name = "GT"
-print(variants.to_csv(), end="")
+variants.to_csv(args.output)
+stats.to_csv(sys.stdout, header=False)

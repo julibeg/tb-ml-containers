@@ -19,14 +19,9 @@ grep -v "#" vars.vcf | awk -F'\t' \
     {print "Chromosome", $2-1, $2, ".", ".", $3, $4, ".", "AF=1"}' |
     sort -k2,2 -n >vars.bed
 
-# extract the reads overlapping with the variants of interest (we have to index
-# the BAM first --> create a symlink so that the index will generated here -- we
-# might not have permissions to create the index file next to the actual BAM)
-ln -s "$bam_file" .
-# get the filename from the bam_file path
-bam_fname=$(basename "$bam_file")
-samtools index "$bam_fname"
-samtools view -bML vars.bed "$bam_fname" -T $refgenome >extracted.bam
+# extract the reads overlapping with the variants of interest
+samtools index "$bam_file"
+samtools view -bML vars.bed "$bam_file" -T $refgenome >extracted.bam
 
 # print the header for the result
 echo 'POS,REF,ALT,GT,DP'
