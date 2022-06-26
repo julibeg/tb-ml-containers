@@ -7,14 +7,15 @@ import io
 ref_file = "/internal_data/refgenome.fa"
 
 """
-Entrypoint for a Docker container which uses `sambamba` to generate one-hot encoded
+Entrypoint for a Docker container which uses `sambamba` to generate one-hot-encoded
 sequences from a BAM file. The start and end coordinates of the sequences are read from
-a BED file (which is required). The sequences are concatenated without any gaps.
+a CSV file (which is required and should have the header line 'locus,start,end'). The
+sequences are concatenated without any gaps.
 """
 
 parser = argparse.ArgumentParser(
     description="""Extract one-hot-encoded consensus sequences from aligned reads. Needs
-                a SAM/BAM/CRAM file and a BED file with the coordinates of the regions
+                a SAM/BAM/CRAM file and a CSV file with the coordinates of the regions
                 to extract. Writes the output to a CSV file. Providing an output file is
                 required."""
 )
@@ -31,7 +32,7 @@ parser.add_argument(
     "--regions",
     type=str,
     metavar="FILE",
-    help="regions BED file [required]",
+    help="regions CSV file (with the header 'locus,start,end') [required]",
     required=True,
 )
 parser.add_argument(
@@ -57,11 +58,18 @@ subprocess.run(["samtools", "sort", "reads.bam", "-o", "reads.sorted.bam"])
 # index the sorted BAM file
 subprocess.run(["samtools", "index", "reads.sorted.bam"])
 
+# sambamba needs a BED file --> convert the CSV
+regions = pd.read_csv(args.regions)
+regions["chr"] = "Chromosome"
+regions[["chr", "start", "end", "locus"]].to_csv(
+    "regions.bed", index=False, header=False, sep="\t"
+)
+
 # now run sambamba and parse the output to produce one-hot encoding
 sambamba_output = pd.read_csv(
     io.StringIO(
         subprocess.run(
-            ["sambamba", "depth", "base", "-L", args.regions, "reads.sorted.bam"],
+            ["sambamba", "depth", "base", "-L", "regions.bed", "reads.sorted.bam"],
             capture_output=True,
             text=True,
         ).stdout

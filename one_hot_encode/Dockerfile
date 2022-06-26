@@ -1,6 +1,6 @@
 FROM mambaorg/micromamba:0.24.0
 
-LABEL software.version="0.2.0"
+LABEL software.version="0.3.0"
 LABEL image.name="julibeg/tb-ml-one-hot-encoded-from-cram"
 
 RUN micromamba install -n base -c bioconda -c conda-forge -y \
