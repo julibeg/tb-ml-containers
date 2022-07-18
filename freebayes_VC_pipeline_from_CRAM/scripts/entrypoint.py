@@ -7,8 +7,8 @@ import io
 """
 Entrypoint for a Docker container holding a simple variant calling pipeline: Parses
 arguments and then calls a shell script containing the pipeline. Expects the name of a
-BAM file with M. tuberculosis reads aligned against the reference strain H37Rv
-(ASM19595v2) and a CSV file with target variants (i.e. variants for which we want
+sorted BAM/CRAM file with M. tuberculosis reads aligned against the reference strain
+H37Rv (ASM19595v2) and a CSV file with target variants (i.e. variants for which we want
 genotypes) in the format `POS,REF,ALT,AF`. This CSV file should also hold allele
 frequencies in the last column which are used to replace missing genotypes / non-calls.
 The container writes the called variants in the format `POS,REF,ALT,GT` to the output
@@ -18,10 +18,10 @@ noncalls, etc.) to STDOUT.
 
 parser = argparse.ArgumentParser(
     description="""
-    Variant calling pipeline accepting a BAM file with reads aligned against the M.
-    tyberculosis reference genome H37Rv (ASM19595v2) and a CSV of target variants (and
-    allele frequencies) in the format `POS,REF,ALT,AF` as input. Calls the genotypes
-    specified in the CSV and replaces missing genotypes / noncalls with the
+    Variant calling pipeline accepting a sorted BAM/CRAM file with reads aligned against
+    the M. tyberculosis reference genome H37Rv (ASM19595v2) and a CSV of target variants
+    (and allele frequencies) in the format `POS,REF,ALT,AF` as input. Calls the
+    genotypes specified in the CSV and replaces missing genotypes / noncalls with the
     corresponding allele frequencies. Writes some basic stats to STDOUT and the variants
     as `POS,REF,ALT,GT` to the output file (specified by '-o').
     """,
@@ -31,7 +31,7 @@ parser.add_argument(
     "--bam",
     type=str,
     required=True,
-    help="Sorted BAM file of reads aligned against a reference [required]",
+    help="Sorted BAM/CRAM file of reads aligned against a reference [required]",
     metavar="FILE",
 )
 parser.add_argument(
