@@ -1,4 +1,4 @@
-# Simple Random Forest example container predicting Mtb resistance against streptomycin
+# Docker container holding a simple Random Forest model predicting Mtb resistance against streptomycin
 
 This container holds a random forest model trained on Mtb variants in order to predict resistance against streptomycin. It can be queried to give the list of variants required for prediction (see usage examples below). The workdir in the container is `/data` which is also where the output file will be generated (and thus it needs to be mounted as a volume on the host).
 

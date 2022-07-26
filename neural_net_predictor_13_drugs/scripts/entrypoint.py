@@ -104,7 +104,7 @@ if args.get_target_loci and args.output is None:
 
 # write the target loci if requested
 if args.get_target_loci:
-    subprocess.call(['cp', "/internal_data/target_loci.csv", args.output])
+    subprocess.call(["cp", "/internal_data/target_loci.csv", args.output])
 else:
     # load the model
     m = tf.keras.models.load_model("/internal_data/model", compile=False)
@@ -113,7 +113,8 @@ else:
     input = pd.read_csv(args.file)
     if list(input.columns) != list("ACGT"):
         raise ValueError(
-            f"Input file must have columns {list('ACGT')}, but has {list(input.columns)}"
+            f"Input file must have columns {list('ACGT')}, "
+            f"but has {list(input.columns)}"
         )
 
     # predict

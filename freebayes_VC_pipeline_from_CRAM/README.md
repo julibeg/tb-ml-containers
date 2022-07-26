@@ -1,4 +1,4 @@
-# Container to call variants with Freebayes from a SAM/BAM/CRAM file
+# Docker container to call variants with Freebayes from a SAM/BAM/CRAM file
 
 This example container uses [Freebayes](https://github.com/freebayes/freebayes)
 to call variants from a sorted BAM/CRAM file with reads aligned against H37Rv
