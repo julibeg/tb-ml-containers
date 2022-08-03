@@ -23,9 +23,7 @@ get_img_name_from_dockerfile() {
 }
 
 push_docker_if_new_version() {
-    echo "$1"
     new_tag="v$(get_version_from_dockerfile "$1")"
-    echo "$new_tag"
     name="$(get_img_name_from_dockerfile  "$1")"
     old_tags="$(get_tags_from_docker_hub "$name")"
     img_tag="$name:$new_tag"
