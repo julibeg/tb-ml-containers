@@ -1,6 +1,6 @@
 FROM mambaorg/micromamba:0.24.0
 
-LABEL software.version="0.3.0"
+LABEL software.version="0.4.0"
 LABEL image.name="julibeg/tb-ml-one-hot-encoded-from-cram"
 
 RUN micromamba install -n base -c bioconda -c conda-forge -y \
@@ -15,11 +15,12 @@ RUN mkdir /internal_data /data
 # copy the reference genome
 COPY data_files/MTB-h37rv_asm19595v2-eg18.fa /internal_data/refgenome.fa
 
-# copy the entrypoint script script
-COPY scripts/entrypoint.py /
+# copy the python main and bash entrypoint scripts
+COPY scripts/entrypoint.sh /
+COPY scripts/main.py /
 
 # set `/data` as working directory so that the output is written to the
 # mount point when run with `docker run -v $PWD:/data ... -o output.csv`
 WORKDIR /data
 
-ENTRYPOINT ["/usr/local/bin/_entrypoint.sh", "python", "/entrypoint.py"]
+ENTRYPOINT ["/bin/bash", "/entrypoint.sh"]

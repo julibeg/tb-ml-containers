@@ -61,6 +61,7 @@ subprocess.run(["samtools", "index", "reads.sorted.bam"])
 # sambamba needs a BED file --> convert the CSV
 regions = pd.read_csv(args.regions)
 regions["chr"] = "Chromosome"
+regions[['start', 'end']] -= 1
 regions[["chr", "start", "end", "locus"]].to_csv(
     "regions.bed", index=False, header=False, sep="\t"
 )

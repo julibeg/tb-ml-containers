@@ -1,6 +1,6 @@
 FROM mambaorg/micromamba:0.24.0
 
-LABEL software.version="0.3.0"
+LABEL software.version="0.4.0"
 LABEL image.name="julibeg/tb-ml-freebayes-vc-from-cram"
 
 RUN micromamba install -n base -c bioconda -c conda-forge -y \
@@ -18,12 +18,13 @@ COPY data_files/MTB-h37rv_asm19595v2-eg18.fa /internal_data/refgenome.fa
 COPY data_files/MTB-h37rv_asm19595v2-eg18.fa.fai /internal_data/refgenome.fa.fai
 COPY data_files/vcf_header.txt /internal_data
 
-# copy the entrypoint script and the shell helper script
-COPY scripts/entrypoint.py /
+# copy the scripts
+COPY scripts/entrypoint.sh /
+COPY scripts/main.py /
 COPY scripts/get_genotypes.sh /
 
 # set `/data` as working directory so that the output is written to the
 # mount point when run with `docker run -v $PWD:/data ... -o output.csv`
 WORKDIR /data
 
-ENTRYPOINT ["/usr/local/bin/_entrypoint.sh", "python", "/entrypoint.py"]
+ENTRYPOINT ["/bin/bash", "/entrypoint.sh"]
