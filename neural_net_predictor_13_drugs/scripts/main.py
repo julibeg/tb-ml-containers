@@ -124,4 +124,4 @@ else:
 
     res = pd.concat((res, res.apply(lambda x: "R" if x > 0.5 else "S")), axis=1)
     # write the result
-    res.to_csv(sys.stdout, header=False)
+    res.to_csv(sys.stdout if args.output is None else args.output, header=False)
