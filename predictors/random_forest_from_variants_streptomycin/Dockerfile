@@ -1,7 +1,7 @@
 FROM mambaorg/micromamba:0.24.0
 
 LABEL software.version="0.4.0"
-LABEL image.name="julibeg/tb-ml-simple-rf-predictor-streptomycin"
+LABEL image.name="julibeg/tb-ml-random-forest-from-variants-streptomycin"
 
 RUN micromamba install -y -n base -c conda-forge \
     pandas=1.4.1 \

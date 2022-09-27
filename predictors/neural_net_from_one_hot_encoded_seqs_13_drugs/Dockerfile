@@ -1,7 +1,7 @@
 FROM tensorflow/tensorflow:2.7.0
 
 LABEL software.version="0.7.0"
-LABEL image.name="julibeg/tb-ml-neural-net-predictor-13-drugs"
+LABEL image.name="julibeg/tb-ml-neural-net-from-one-hot-encoded-seqs-13-drugs"
 
 RUN pip install pandas==1.4.2
 
