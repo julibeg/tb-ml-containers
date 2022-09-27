@@ -10,7 +10,7 @@ Get coordinates of target loci
 
 ```bash
 docker run -v $PWD:/data \
-    julibeg/tb-ml-neural-net-predictor-13-drugs:v0.4.0 \
+    julibeg/tb-ml-neural-net-from-one-hot-encoded-seqs-13-drugs:v0.7.0 \
     --get-target-loci \
     -o nn_target_loci.csv
 ```
@@ -19,6 +19,6 @@ Predict resistance against 13 drugs from one-hot-encoded sequences (passed in a 
 
 ```bash
 docker run -v $PWD:/data \
-    julibeg/tb-ml-neural-net-predictor-13-drugs:v0.4.0 \
+    julibeg/tb-ml-neural-net-from-one-hot-encoded-seqs-13-drugs:v0.7.0 \
     input_seqs.csv
 ```

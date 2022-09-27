@@ -13,7 +13,7 @@ The columns of the CSV will be `POS,REF,ALT,AF`.
 
 ```bash
 docker run -v $PWD:/data \
-    julibeg/tb-ml-simple-rf-predictor-streptomycin:v0.3.0 \
+    julibeg/tb-ml-random-forest-from-variants-streptomycin:v0.4.0 \
     --get-target-vars -o target-vars.csv
 ```
 
@@ -25,6 +25,6 @@ header line `POS,REF,ALT,GT`. The file needs to have the same `POS`, `REF`, and
 
 ```bash
 docker run -v $PWD:/data \
-    julibeg/tb-ml-simple-rf-predictor-streptomycin:v0.3.0 \
+    julibeg/tb-ml-random-forest-from-variants-streptomycin:v0.4.0 \
     my-variants.csv
 ```

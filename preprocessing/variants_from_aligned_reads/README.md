@@ -17,6 +17,8 @@ there. It can be called like this:
 
 ```bash
 docker run -v $PWD:/data \
-    julibeg/tb-ml-freebayes-vc-from-cram:v0.2.0 \
-    -b aligned-reads.bam -t target-vars.csv -o called-variants.csv
+    julibeg/tb-ml-variants-from-aligned-reads:v0.4.0 \
+    -b aligned-reads.bam \
+    -t target-vars.csv \
+    -o called-variants.csv
 ```
