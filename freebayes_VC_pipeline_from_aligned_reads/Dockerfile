@@ -1,7 +1,7 @@
 FROM mambaorg/micromamba:0.24.0
 
 LABEL software.version="0.4.0"
-LABEL image.name="julibeg/tb-ml-freebayes-VC-from-aligned-reads"
+LABEL image.name="julibeg/tb-ml-freebayes-vc-from-aligned-reads"
 
 RUN micromamba install -n base -c bioconda -c conda-forge -y \
     pandas=1.4.1 \

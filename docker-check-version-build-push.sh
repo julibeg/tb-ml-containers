@@ -1,10 +1,10 @@
 #!/bin/bash
 
 get_tags_from_docker_hub() {
-    wget -q "https://registry.hub.docker.com/v1/repositories/$1/tags" -O -  |
-        sed -e 's/[][]//g' -e 's/"//g' -e 's/ //g' | 
-        tr '}' '\n'  | 
-        awk -F: '{print $3}'
+    curl -L -s \
+        "https://registry.hub.docker.com/v2/repositories/$1/tags?page_size=1024" |
+        jq '."results"[]["name"]' 2> /dev/null |
+        tr -d '"'
 }
 
 get_version_from_dockerfile() {
@@ -25,9 +25,10 @@ get_img_name_from_dockerfile() {
 push_docker_if_new_version() {
     new_tag="v$(get_version_from_dockerfile "$1")"
     name="$(get_img_name_from_dockerfile  "$1")"
-    old_tags="$(get_tags_from_docker_hub "$name")"
     img_tag="$name:$new_tag"
     echo "Checking if version changed for $img_tag:"
+    # now query the old tags from Docker Hub
+    old_tags="$(get_tags_from_docker_hub "$name")"
     # exit if the version tag from the Dockerfile is already on Docker Hub
     if [[ "$old_tags" =~ $new_tag ]]; then
         old_tags_str=$(echo "$old_tags" | tr '\n' ',' | sed 's/,$//;s/,/, /g')
