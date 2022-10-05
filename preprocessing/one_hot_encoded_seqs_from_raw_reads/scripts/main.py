@@ -102,6 +102,7 @@ subprocess.run(
         "trimmed_1P",
         "trimmed_2P",
         "/internal_data/refgenome.fa",
+        str(args.threads),
     ]
 )
 

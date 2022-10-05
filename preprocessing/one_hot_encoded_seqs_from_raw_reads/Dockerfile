@@ -1,6 +1,6 @@
 FROM mambaorg/micromamba:0.25.1
 
-LABEL software.version="0.1.0"
+LABEL software.version="0.2.0"
 LABEL image.name="julibeg/tb-ml-one-hot-encoded-seqs-from-raw-reads"
 
 RUN micromamba install -n base -c bioconda -c conda-forge -y \
