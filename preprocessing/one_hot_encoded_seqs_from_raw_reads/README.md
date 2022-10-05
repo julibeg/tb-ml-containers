@@ -1,4 +1,4 @@
-# Docker container to one-hot-encode consensus sequences from a SAM/BAM/CRAM file
+# Docker container to one-hot-encode consensus sequences from raw reads
 
 This container uses `bwa-mem2 mem` to align raw reads to the _M tuberculosis_ H37Rv reference genome (ASM19595v2) and afterwards extracts one-hot-encoded consensus sequences of a list of target loci. The start and end coordinates of the target sequences are read from a CSV file which is required and must have the header line `locus,start,end`. The sequences are concatenated without gaps.
 
