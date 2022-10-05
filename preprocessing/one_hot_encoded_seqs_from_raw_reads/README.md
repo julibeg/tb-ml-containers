@@ -8,7 +8,7 @@ FASTQ files with forward and reverse _M tuberculosis_ reads and a CSV file speci
 
 ```bash
 docker run -v $PWD:/data \
-    julibeg/tb-ml-one-hot-encoded-seqs-from-raw-reads:v0.1.0 \
+    julibeg/tb-ml-one-hot-encoded-seqs-from-raw-reads:v0.2.0 \
     -r target_loci.csv \
     -o one_hot_seqs.csv \
     my-sample_1.fastq.gz \
