@@ -37,7 +37,9 @@ push_docker_if_new_version() {
     else
         echo "Version changed for $img_tag --> build and push"
         docker build -t "$img_tag" "$(dirname "$1")"
+        docker tag "$img_tag" "$name:latest"
         docker push "$img_tag"
+        docker push "$name:latest"
     fi
 }
 
