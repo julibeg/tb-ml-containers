@@ -8,10 +8,10 @@ ref_file = "/internal_data/refgenome.fa"
 
 """
 Entrypoint for a Docker container which uses `sambamba` to generate one-hot-encoded
-sequences from raw reads (after aligning them to a reference with `bwa-mem2`). The start
-and end coordinates of the sequences are read from a CSV file (which is required and
-should have the header line 'locus,start,end'). The sequences are concatenated without
-any gaps.
+sequences from raw M. tuberculosis reads (after aligning them to the M. tuberculosis
+genome with `bwa-mem2`). The reference genome is H37Rv (asm19595v2). The start and end
+coordinates of the sequences are read from a CSV file (which is required and should have
+the header line 'locus,start,end'). The sequences are concatenated without any gaps.
 """
 
 parser = argparse.ArgumentParser(
