@@ -1,21 +1,18 @@
 import argparse
 import subprocess
 import pandas as pd
-import os
 import io
-
-ref_file = "/internal_data/refgenome.fa"
 
 """
 Entrypoint for a Docker container which uses `sambamba` to generate one-hot-encoded
-sequences from a BAM file. The start and end coordinates of the sequences are read from
-a CSV file (which is required and should have the header line 'locus,start,end'). The
-sequences are concatenated without any gaps.
+sequences from a SAM/BAM file. The start and end coordinates of the sequences are read
+from a CSV file (which is required and should have the header line 'locus,start,end').
+The sequences are concatenated without any gaps.
 """
 
 parser = argparse.ArgumentParser(
     description="""Extract one-hot-encoded consensus sequences from aligned reads. Needs
-                a SAM/BAM/CRAM file and a CSV file with the coordinates of the regions
+                a SAM/BAM file and a CSV file with the coordinates of the regions
                 to extract. Writes the output to a CSV file. Providing an output file is
                 required."""
 )
@@ -24,7 +21,7 @@ parser.add_argument(
     "--bam",
     type=str,
     metavar="FILE",
-    help="alignment file (SAM/BAM/CRAM) [required]",
+    help="alignment file (SAM/BAM) [required]",
     required=True,
 )
 parser.add_argument(
@@ -48,20 +45,24 @@ args = parser.parse_args()
 # check if the aligned reads are in a BAM file and create one if not
 if not args.bam.endswith(".bam"):
     subprocess.run(
-        ["samtools", "view", "-bT", ref_file, "-o", "reads.bam", args.bam],
+        ["samtools", "view", "-b", "-h", "-o", "reads.bam", args.bam],
     )
-    args.bam += ".bam"
+    input_reads = "reads.bam"
 else:
-    os.rename(args.bam, "reads.bam")
+    input_reads = args.bam
 # sort the BAM file
-subprocess.run(["samtools", "sort", "reads.bam", "-o", "reads.sorted.bam"])
+subprocess.run(["samtools", "sort", input_reads, "-o", "reads.sorted.bam"])
 # index the sorted BAM file
 subprocess.run(["samtools", "index", "reads.sorted.bam"])
+# get the name of the reference sequence that was used to generate the SAM/BAM file
+ref_seq_name = subprocess.run(
+    ["samtools", "idxstats", "reads.sorted.bam"], capture_output=True, text=True
+).stdout.split()[0]
 
 # sambamba needs a BED file --> convert the CSV
 regions = pd.read_csv(args.regions)
-regions["chr"] = "Chromosome"
-regions[['start', 'end']] -= 1
+regions["chr"] = ref_seq_name
+regions[["start", "end"]] -= 1
 regions[["chr", "start", "end", "locus"]].to_csv(
     "regions.bed", index=False, header=False, sep="\t"
 )
