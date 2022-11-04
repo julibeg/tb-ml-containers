@@ -1,6 +1,6 @@
 FROM mambaorg/micromamba:0.27.0
 
-LABEL software.version="0.1.0"
+LABEL software.version="0.1.1"
 LABEL image.name="julibeg/tb-ml-consensus-seqs-from-raw-reads"
 
 RUN micromamba install -n base -c bioconda -c conda-forge -y \

@@ -25,6 +25,7 @@ bwa-mem2 mem \
     "$refgenome" \
     trimmed_1P.fq.gz \
     trimmed_2P.fq.gz |
+    samtools view -bhS |
     samtools fixmate -@ "$threads" -m - - |
     samtools sort -@ "$threads" - -o reads.sorted.bam
 
