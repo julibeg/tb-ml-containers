@@ -1,4 +1,4 @@
-# Docker container to one-hot-encode consensus sequences from a SAM/BAM/CRAM file
+# Docker container to one-hot-encode consensus sequences from a SAM/BAM file
 
 The container uses `sambamba` to transform target consensus sequences extracted from aligned reads into one-hot encoding. The start and end coordinates of the sequences are read from a CSV file which is required and must have the header line `locus,start,end`. The sequences are concatenated without gaps.
 
